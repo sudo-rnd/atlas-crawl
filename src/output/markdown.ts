@@ -4,24 +4,10 @@ import { deduplicateEndpoints } from '../extractors/endpoints.js';
 const DIVIDER = '━'.repeat(60);
 
 const ASCII_BANNER = `
-   ▄████████     ███        ▄█          ▄████████    ▄████████
-  ███    ███ ▀█████████▄   ███         ███    ███   ███    ███
-  ███    ███    ▀███▀▀██   ███         ███    ███   ███    █▀
-  ███    ███     ███   ▀   ███         ███    ███   ███
-▀███████████     ███       ███       ▀███████████ ▀███████████
-  ███    ███     ███       ███         ███    ███          ███
-  ███    ███     ███       ███▌    ▄   ███    ███    ▄█    ███
-  ███    █▀     ▄████▀     █████▄▄██   ███    █▀   ▄████████▀
-                           ▀
-   ▄████████    ▄████████    ▄████████  ▄█     █▄   ▄█
-  ███    ███   ███    ███   ███    ███ ███     ███ ███
-  ███    █▀    ███    ███   ███    ███ ███     ███ ███
-  ███         ▄███▄▄▄▄██▀   ███    ███ ███     ███ ███
-  ███        ▀▀███▀▀▀▀▀   ▀███████████ ███     ███ ███
-  ███    █▄  ▀███████████   ███    ███ ███     ███ ███
-  ███    ███   ███    ███   ███    ███ ███ ▄█▄ ███ ███▌    ▄
-  ████████▀    ███    ███   ███    █▀   ▀███▀███▀  █████▄▄██
-               ███    ███                          ▀
+        _   _           ___                  _
+  __ _ | |_| | __ _ ___/ __|_ _ __ ___ __ __| |
+ / _\` ||  _| |/ _\` (_-< (__| '_/ _\` \\ V  V /| |
+ \\__,_| \\__|_|\\__,_/__/\\___|_| \\__,_|\\_/\\_/ |_|
 `;
 
 export function generateMarkdownReport(results: CrawlResult): string {
@@ -29,15 +15,11 @@ export function generateMarkdownReport(results: CrawlResult): string {
 
   // Banner
   lines.push(ASCII_BANNER);
-  lines.push('  ╔═══════════════════════════════════════════════════════════╗');
-  lines.push('  ║        » Web Reconnaissance & Security Scanner «          ║');
-  lines.push('  ╚═══════════════════════════════════════════════════════════╝');
+  lines.push('  Web Reconnaissance & Security Scanner');
   lines.push('');
-  lines.push('  ┌──────────────────────────────────────────────────────────┐');
-  lines.push(`  │ Target: ${results.target.padEnd(49)}│`);
-  lines.push(`  │ Date: ${results.startTime.toISOString().padEnd(51)}│`);
-  lines.push(`  │ Duration: ${String(getDuration(results) + 's').padEnd(47)}│`);
-  lines.push('  └──────────────────────────────────────────────────────────┘');
+  lines.push(`  target   : ${results.target}`);
+  lines.push(`  date     : ${results.startTime.toISOString()}`);
+  lines.push(`  duration : ${getDuration(results)}s`);
   lines.push('');
   lines.push(DIVIDER);
   lines.push('');
@@ -156,15 +138,9 @@ export function generateMarkdownReport(results: CrawlResult): string {
   // Sitemap URLs
   if (results.sitemapUrls.length > 0) {
     lines.push('■ SITEMAP URLS');
-    const maxUrls = 30;
-    const urls = results.sitemapUrls.slice(0, maxUrls);
-    for (let i = 0; i < urls.length; i++) {
-      const isLast = i === urls.length - 1 && results.sitemapUrls.length <= maxUrls;
-      const prefix = isLast ? '└── ' : '├── ';
-      lines.push(`  ${prefix}${urls[i]}`);
-    }
-    if (results.sitemapUrls.length > maxUrls) {
-      lines.push(`  └── ... and ${results.sitemapUrls.length - maxUrls} more`);
+    for (let i = 0; i < results.sitemapUrls.length; i++) {
+      const prefix = i === results.sitemapUrls.length - 1 ? '└── ' : '├── ';
+      lines.push(`  ${prefix}${results.sitemapUrls[i]}`);
     }
     lines.push('');
   }

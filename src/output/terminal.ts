@@ -45,20 +45,15 @@ export function printResults(results: CrawlResult): void {
   if (results.pages.length === 0) {
     console.log(chalk.gray('  No pages crawled'));
   } else {
-    const maxPages = 20;
-    const pages = results.pages.slice(0, maxPages);
-    for (let i = 0; i < pages.length; i++) {
-      const page = pages[i];
-      const prefix = i === pages.length - 1 && results.pages.length <= maxPages ? '└── ' : '├── ';
+    for (let i = 0; i < results.pages.length; i++) {
+      const page = results.pages[i];
+      const prefix = i === results.pages.length - 1 ? '└── ' : '├── ';
       const statusColor = page.statusCode >= 400 ? chalk.red : page.statusCode >= 300 ? chalk.yellow : chalk.green;
       console.log(
         chalk.gray('  ' + prefix) +
-        chalk.white(truncateUrl(page.url, 50)) +
+        chalk.white(page.url) +
         chalk.gray(' (') + statusColor(String(page.statusCode)) + chalk.gray(')')
       );
-    }
-    if (results.pages.length > maxPages) {
-      console.log(chalk.gray(`  └── ... and ${results.pages.length - maxPages} more`));
     }
   }
 
@@ -68,20 +63,15 @@ export function printResults(results: CrawlResult): void {
   if (endpoints.length === 0) {
     console.log(chalk.gray('  No API endpoints found'));
   } else {
-    const maxEndpoints = 25;
-    const sorted = endpoints.slice(0, maxEndpoints);
-    for (let i = 0; i < sorted.length; i++) {
-      const ep = sorted[i];
-      const prefix = i === sorted.length - 1 && endpoints.length <= maxEndpoints ? '└── ' : '├── ';
+    for (let i = 0; i < endpoints.length; i++) {
+      const ep = endpoints[i];
+      const prefix = i === endpoints.length - 1 ? '└── ' : '├── ';
       const methodColor = getMethodColor(ep.method);
       console.log(
         chalk.gray('  ' + prefix) +
         methodColor(ep.method.padEnd(6)) +
-        chalk.white(truncateUrl(ep.url, 50))
+        chalk.white(ep.url)
       );
-    }
-    if (endpoints.length > maxEndpoints) {
-      console.log(chalk.gray(`  └── ... and ${endpoints.length - maxEndpoints} more`));
     }
   }
 
@@ -97,7 +87,7 @@ export function printResults(results: CrawlResult): void {
       console.log(
         chalk.gray('  ' + prefix) +
         formTypeIcon + ' ' +
-        chalk.white(truncateUrl(form.action, 40)) +
+        chalk.white(form.action) +
         chalk.gray(' [') + chalk.yellow(form.method) + chalk.gray('] - ') +
         chalk.cyan(`${form.fields.length} fields`) +
         chalk.gray(' (') + chalk.magenta(form.formType) + chalk.gray(')')
@@ -110,15 +100,13 @@ export function printResults(results: CrawlResult): void {
   if (results.jsFiles.length === 0) {
     console.log(chalk.gray('  No JavaScript files analyzed'));
   } else {
-    const maxFiles = 15;
-    const files = results.jsFiles.slice(0, maxFiles);
-    for (let i = 0; i < files.length; i++) {
-      const js = files[i];
-      const prefix = i === files.length - 1 && results.jsFiles.length <= maxFiles ? '└── ' : '├── ';
+    for (let i = 0; i < results.jsFiles.length; i++) {
+      const js = results.jsFiles[i];
+      const prefix = i === results.jsFiles.length - 1 ? '└── ' : '├── ';
       const sizeStr = formatBytes(js.size);
       console.log(
         chalk.gray('  ' + prefix) +
-        chalk.white(truncateUrl(js.url, 45)) +
+        chalk.white(js.url) +
         chalk.gray(` (${sizeStr})`)
       );
       if (js.endpoints.length > 0) {
@@ -127,9 +115,6 @@ export function printResults(results: CrawlResult): void {
       if (js.secrets.length > 0) {
         console.log(chalk.gray('  │   └── ') + chalk.red(`Secrets: ${js.secrets.length} found`));
       }
-    }
-    if (results.jsFiles.length > maxFiles) {
-      console.log(chalk.gray(`  └── ... and ${results.jsFiles.length - maxFiles} more`));
     }
   }
 
@@ -174,14 +159,9 @@ export function printResults(results: CrawlResult): void {
   // Robots.txt paths
   if (results.robotsPaths.length > 0) {
     printSection('ROBOTS.TXT PATHS');
-    const maxPaths = 10;
-    const paths = results.robotsPaths.slice(0, maxPaths);
-    for (let i = 0; i < paths.length; i++) {
-      const prefix = i === paths.length - 1 && results.robotsPaths.length <= maxPaths ? '└── ' : '├── ';
-      console.log(chalk.gray('  ' + prefix) + chalk.white(paths[i]));
-    }
-    if (results.robotsPaths.length > maxPaths) {
-      console.log(chalk.gray(`  └── ... and ${results.robotsPaths.length - maxPaths} more`));
+    for (let i = 0; i < results.robotsPaths.length; i++) {
+      const prefix = i === results.robotsPaths.length - 1 ? '└── ' : '├── ';
+      console.log(chalk.gray('  ' + prefix) + chalk.white(results.robotsPaths[i]));
     }
   }
 
@@ -256,9 +236,8 @@ function getFormTypeIcon(formType: FormInfo['formType']): string {
   }
 }
 
-function truncateUrl(url: string, maxLength: number): string {
-  if (url.length <= maxLength) return url;
-  return url.slice(0, maxLength - 3) + '...';
+function truncateUrl(url: string, _maxLength?: number): string {
+  return url;
 }
 
 function formatBytes(bytes: number): string {
