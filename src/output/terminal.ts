@@ -16,7 +16,7 @@ export function printBanner(version: string, target: string, options: CrawlOptio
   console.log(chalk.gray(`  [ v${version} ] Web Reconnaissance & Security Scanner`));
   console.log();
   console.log(chalk.gray('  target  : ') + chalk.green(target));
-  console.log(chalk.gray('  mode    : ') + chalk.white(options.rate) + chalk.gray('  |  depth: ') + chalk.white(String(options.depth)) + chalk.gray('  |  subs: ') + (options.subdomains ? chalk.green('on') : chalk.gray('off')));
+  console.log(chalk.gray('  mode    : ') + chalk.white(options.rate) + chalk.gray('  |  depth: ') + chalk.white(String(options.depth)) + chalk.gray('  |  subs: ') + (options.subdomains ? chalk.green('on') : chalk.gray('off')) + chalk.gray('  |  cache: ') + (options.noCache ? chalk.yellow('bypass') : chalk.gray('on')));
   console.log();
   console.log(chalk.gray(DIVIDER));
   console.log();

@@ -140,6 +140,7 @@ export class Crawler {
     const contextOptions: Parameters<Browser['newContext']>[0] = {
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       viewport: { width: 1920, height: 1080 },
+      serviceWorkers: this.options.noCache ? 'block' : 'allow',
     };
 
     // Parse and inject cookies if provided
@@ -151,17 +152,38 @@ export class Crawler {
       };
     }
 
-    // Add custom headers if provided
+    // Add custom headers if provided (start with cache-busting if enabled)
+    const headers: Record<string, string> = {};
+
+    if (this.options.noCache) {
+      headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+      headers['Pragma'] = 'no-cache';
+      headers['Expires'] = '0';
+    }
+
     if (this.options.headers.length > 0) {
-      const headers: Record<string, string> = {};
       for (const h of this.options.headers) {
         const [key, ...rest] = h.split(':');
         headers[key.trim()] = rest.join(':').trim();
       }
+    }
+
+    if (Object.keys(headers).length > 0) {
       contextOptions.extraHTTPHeaders = headers;
     }
 
     this.context = await this.browser.newContext(contextOptions);
+
+    // Disable cache via CDP if --no-cache is set
+    if (this.options.noCache) {
+      const cdpSession = await this.context.newCDPSession(await this.context.newPage());
+      await cdpSession.send('Network.setCacheDisabled', { cacheDisabled: true });
+      // Close the temp page used for CDP
+      const pages = this.context.pages();
+      if (pages.length > 0) {
+        await pages[0].close();
+      }
+    }
   }
 
   private parseCookies(cookieStr: string): Array<{

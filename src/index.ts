@@ -24,6 +24,7 @@ program
   .option('--timeout <ms>', 'Page load timeout in milliseconds', '30000')
   .option('--scope <regex>', 'Only crawl URLs matching this regex')
   .option('--exclude <patterns>', 'Exclude URL patterns (comma-separated)')
+  .option('--no-cache', 'Bypass Service Workers and browser cache', false)
   .action(async (url: string, opts) => {
     try {
       // Validate URL
@@ -41,6 +42,7 @@ program
         timeout: parseInt(opts.timeout, 10),
         scope: opts.scope,
         exclude: opts.exclude?.split(',').map((p: string) => p.trim()),
+        noCache: opts.cache === false, // --no-cache sets opts.cache to false
       };
 
       // Print banner

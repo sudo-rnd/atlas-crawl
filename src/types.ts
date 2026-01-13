@@ -10,6 +10,7 @@ export interface CrawlOptions {
   timeout: number;
   scope?: string;
   exclude?: string[];
+  noCache: boolean; // Bypass Service Workers and browser cache
 }
 
 export type RatePreset = 'stealth' | 'normal' | 'aggressive';
