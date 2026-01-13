@@ -1,6 +1,9 @@
 node_modules/
 dist/
-.claude/
 *.log
 .env
 .env.*
+
+# IDE and editor config
+.idea/
+.vscode/
