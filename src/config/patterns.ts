@@ -1,19 +1,7 @@
 import type { SecretPattern } from '../types.js';
 
-// Helper to mask secrets for display
-function maskMiddle(value: string, showChars: number = 4): string {
-  if (value.length <= showChars * 2) {
-    return '*'.repeat(value.length);
-  }
-  const start = value.slice(0, showChars);
-  const end = value.slice(-showChars);
-  const middle = '*'.repeat(Math.min(value.length - showChars * 2, 8));
-  return `${start}${middle}${end}`;
-}
-
-function maskAll(value: string): string {
-  return value.slice(0, 4) + '*'.repeat(Math.min(value.length - 4, 12));
-}
+// Return value as-is (no masking)
+const identity = (v: string): string => v;
 
 export const SECRET_PATTERNS: SecretPattern[] = [
   // AWS Access Key
@@ -21,49 +9,49 @@ export const SECRET_PATTERNS: SecretPattern[] = [
     type: 'aws-key',
     name: 'AWS Access Key',
     pattern: /\b(AKIA[0-9A-Z]{16})\b/g,
-    mask: maskMiddle,
+    mask: identity,
   },
   // AWS Secret Key
   {
     type: 'aws-key',
     name: 'AWS Secret Key',
     pattern: /\b([A-Za-z0-9/+=]{40})\b/g,
-    mask: maskMiddle,
+    mask: identity,
   },
   // Google API Key
   {
     type: 'google-api',
     name: 'Google API Key',
     pattern: /\b(AIza[0-9A-Za-z\-_]{35})\b/g,
-    mask: maskMiddle,
+    mask: identity,
   },
   // JWT Token
   {
     type: 'jwt',
     name: 'JWT Token',
     pattern: /\b(eyJ[A-Za-z0-9\-_]+\.eyJ[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_.+/=]*)\b/g,
-    mask: (v) => v.slice(0, 20) + '...[truncated]',
+    mask: identity,
   },
   // Bearer Token
   {
     type: 'bearer-token',
     name: 'Bearer Token',
     pattern: /['"]?Bearer\s+([A-Za-z0-9\-_\.]+)['"]?/gi,
-    mask: maskMiddle,
+    mask: identity,
   },
   // Generic API Key patterns
   {
     type: 'api-key',
     name: 'API Key',
     pattern: /['"]?(?:api[_-]?key|apikey|api[_-]?secret|access[_-]?token|auth[_-]?token)['"]?\s*[:=]\s*['"]?([A-Za-z0-9\-_]{20,})['"]?/gi,
-    mask: maskMiddle,
+    mask: identity,
   },
   // Private Key
   {
     type: 'private-key',
     name: 'Private Key',
     pattern: /-----BEGIN (?:RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----/g,
-    mask: () => '[PRIVATE KEY DETECTED]',
+    mask: identity,
   },
   // S3 Bucket
   {
@@ -84,45 +72,42 @@ export const SECRET_PATTERNS: SecretPattern[] = [
     type: 'api-key',
     name: 'Slack Token',
     pattern: /\b(xox[baprs]-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*)\b/g,
-    mask: maskMiddle,
+    mask: identity,
   },
   // GitHub Token
   {
     type: 'api-key',
     name: 'GitHub Token',
     pattern: /\b(ghp_[A-Za-z0-9]{36}|gho_[A-Za-z0-9]{36}|ghu_[A-Za-z0-9]{36}|ghs_[A-Za-z0-9]{36}|ghr_[A-Za-z0-9]{36})\b/g,
-    mask: maskMiddle,
+    mask: identity,
   },
   // Stripe Key
   {
     type: 'api-key',
     name: 'Stripe Key',
     pattern: /\b(sk_live_[A-Za-z0-9]{24,}|pk_live_[A-Za-z0-9]{24,})\b/g,
-    mask: maskMiddle,
+    mask: identity,
   },
   // Password in URL
   {
     type: 'password',
     name: 'Password in URL',
     pattern: /:\/\/[^:]+:([^@]+)@/g,
-    mask: () => '[PASSWORD]',
+    mask: identity,
   },
   // Generic Password Assignment
   {
     type: 'password',
     name: 'Password',
     pattern: /['"]?(?:password|passwd|pwd|secret)['"]?\s*[:=]\s*['"]([^'"]{8,})['"]?/gi,
-    mask: maskAll,
+    mask: identity,
   },
   // Email addresses
   {
     type: 'email',
     name: 'Email',
     pattern: /\b([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})\b/g,
-    mask: (v) => {
-      const [local, domain] = v.split('@');
-      return `${local.slice(0, 2)}***@${domain}`;
-    },
+    mask: identity,
   },
   // Internal URLs (common patterns)
   {
@@ -136,7 +121,7 @@ export const SECRET_PATTERNS: SecretPattern[] = [
     type: 'api-key',
     name: 'Heroku API Key',
     pattern: /\b([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b/gi,
-    mask: maskMiddle,
+    mask: identity,
   },
   // Firebase URL
   {
