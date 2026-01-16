@@ -121,6 +121,10 @@ function isFalsePositive(value: string, type: string): boolean {
   const placeholders = [
     'your-api-key',
     'your_api_key',
+    'your-secret',
+    'your_secret',
+    'api-key-here',
+    'api_key_here',
     'xxx',
     'yyy',
     'zzz',
@@ -131,6 +135,16 @@ function isFalsePositive(value: string, type: string): boolean {
     'placeholder',
     'insert',
     'replace',
+    'changeme',
+    'undefined',
+    'null',
+    'none',
+    'todo',
+    'fixme',
+    'default',
+    'dummy',
+    'fake',
+    'mock',
   ];
 
   const lowerValue = value.toLowerCase();
@@ -139,13 +153,45 @@ function isFalsePositive(value: string, type: string): boolean {
   }
 
   // Skip too-short values (except for specific patterns)
-  if (value.length < 10 && type !== 's3-bucket') {
+  if (value.length < 16 && type !== 's3-bucket' && type !== 'private-key') {
+    return true;
+  }
+
+  // Skip too-long values (likely not real keys)
+  if (value.length > 256) {
     return true;
   }
 
   // Skip values that look like CSS or common patterns
   if (value.match(/^[a-f0-9]{6}$/i)) return true; // hex color
   if (value.match(/^#[a-f0-9]{3,8}$/i)) return true; // hex color with #
+
+  // Skip pure numeric strings (likely IDs, not secrets)
+  if (/^\d+$/.test(value)) return true;
+
+  // Skip pure lowercase alpha (likely variable names or words)
+  if (/^[a-z]+$/.test(value)) return true;
+
+  // Skip pure uppercase alpha (likely constants or abbreviations)
+  if (/^[A-Z]+$/.test(value)) return true;
+
+  // Skip repeated characters (like 'aaaaaaaaaa' or '0000000000')
+  if (/^(.)\1+$/.test(value)) return true;
+
+  // Skip common sequential patterns
+  if (/^(0123456789|1234567890|abcdefgh|qwertyui)/i.test(value)) return true;
+
+  // Require character diversity for generic secrets (at least 2 char classes)
+  if (type === 'api-key' || type === 'password' || type === 'bearer-token') {
+    const hasLower = /[a-z]/.test(value);
+    const hasUpper = /[A-Z]/.test(value);
+    const hasDigit = /[0-9]/.test(value);
+    const hasSpecial = /[^A-Za-z0-9]/.test(value);
+    const charClasses = [hasLower, hasUpper, hasDigit, hasSpecial].filter(Boolean).length;
+
+    // Require at least 2 character classes for these types
+    if (charClasses < 2) return true;
+  }
 
   // Skip common library/framework tokens
   const commonTokens = [

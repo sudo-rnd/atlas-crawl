@@ -99,7 +99,6 @@ export type SecretType =
   | 'private-key'
   | 'api-key'
   | 's3-bucket'
-  | 'email'
   | 'internal-url'
   | 'password'
   | 'generic-secret';

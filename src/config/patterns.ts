@@ -11,13 +11,6 @@ export const SECRET_PATTERNS: SecretPattern[] = [
     pattern: /\b(AKIA[0-9A-Z]{16})\b/g,
     mask: identity,
   },
-  // AWS Secret Key
-  {
-    type: 'aws-key',
-    name: 'AWS Secret Key',
-    pattern: /\b([A-Za-z0-9/+=]{40})\b/g,
-    mask: identity,
-  },
   // Google API Key
   {
     type: 'google-api',
@@ -95,18 +88,11 @@ export const SECRET_PATTERNS: SecretPattern[] = [
     pattern: /:\/\/[^:]+:([^@]+)@/g,
     mask: identity,
   },
-  // Generic Password Assignment
+  // Generic Password Assignment - restricted to typical password chars, 8-64 length
   {
     type: 'password',
     name: 'Password',
-    pattern: /['"]?(?:password|passwd|pwd|secret)['"]?\s*[:=]\s*['"]([^'"]{8,})['"]?/gi,
-    mask: identity,
-  },
-  // Email addresses
-  {
-    type: 'email',
-    name: 'Email',
-    pattern: /\b([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})\b/g,
+    pattern: /['"]?(?:password|passwd|pwd)['"]?\s*[:=]\s*['"]([A-Za-z0-9!@#$%^&*()_+\-=\[\]{}|;:,.<>?/~`]{8,64})['"]?/gi,
     mask: identity,
   },
   // Internal URLs (common patterns)
@@ -115,13 +101,6 @@ export const SECRET_PATTERNS: SecretPattern[] = [
     name: 'Internal URL',
     pattern: /https?:\/\/(?:localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+)(?::\d+)?[^\s'"<>]*/gi,
     mask: (v) => v,
-  },
-  // Heroku API Key
-  {
-    type: 'api-key',
-    name: 'Heroku API Key',
-    pattern: /\b([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b/gi,
-    mask: identity,
   },
   // Firebase URL
   {
